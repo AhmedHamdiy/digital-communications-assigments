@@ -18,11 +18,11 @@ def plot(x,Y,labels,xlabel,ylabel,title):
     plt.show()
 
 
-def plot_SNR(x,Sim,Theo,Sim_labels,Theo_labels,xlabel,ylabel,title):
+def plot_SNR(x,simulation,theoretical,simulation_labels,theoretical_labels,xlabel,ylabel,title):
     plt.figure(figsize=(8, 6))
-    for i in range(len(Sim_labels)):
-        plt.plot(x, Sim[i],marker='o', label=Sim_labels[i])
-        plt.plot(x, Theo[i],linestyle='--',label=Theo_labels[i])
+    for i in range(len(simulation_labels)):
+        plt.plot(x, simulation[i],marker='x', label=simulation_labels[i])
+        plt.plot(x, theoretical[i],linestyle='--',label=theoretical_labels[i])
         i = i + 1
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -30,6 +30,7 @@ def plot_SNR(x,Sim,Theo,Sim_labels,Theo_labels,xlabel,ylabel,title):
     plt.grid(True)
     plt.legend()
     plt.show()
+
 
 # Uniform Quantizer and Dequantizer
 def UniformQuantizer(in_val, n_bits, xmax, m):
@@ -41,10 +42,10 @@ def UniformQuantizer(in_val, n_bits, xmax, m):
 def UniformDequantizer(q_ind, n_bits, xmax, m):
     L = 2**n_bits
     delta = 2 * xmax / L
-    deq_val = ((q_ind) * delta) + ((m+1) * (delta / 2) - xmax);
+    deq_val = ((q_ind) * delta) + ((m+1) * (delta / 2) - xmax)
     return deq_val
 
-# Mu Law
+# Nonuniform quantizer (Mu Law)
 def mu_law_compression(normalized_x, mu):
     return np.sign(normalized_x) * (np.log1p(mu * np.abs(normalized_x)) / np.log1p(mu))
 
@@ -65,12 +66,12 @@ def ramp_test():
     # Plot the input and dequantized midrise output
     q_ind_midrise = UniformQuantizer(x, n_bits, x_max, m)
     deq_val_midrise = UniformDequantizer(q_ind_midrise, n_bits, x_max, m)
-    plot(x, [x, deq_val_midrise], ['Input Ramp Signal', 'Dequantized Output (m=0)'], 'Input', 'Output', 'Uniform Quantization (Midrise)')
+    plot(x, [x, deq_val_midrise], ['Input Ramp Signal', 'Dequantized Midrise Output'], 'Input', 'Output', 'Uniform Quantization (Midrise)')
 
     # Plot the input and dequantized midtread output
     q_ind_midtread = UniformQuantizer(x, n_bits=3, xmax=6, m=1)
     deq_val_midtread = UniformDequantizer(q_ind_midtread, n_bits=3, xmax=6, m=1)
-    plot(x, [x, deq_val_midtread], ['Input Ramp Signal', 'Dequantized Output (m=1)'], 'Input', 'Output', 'Uniform Quantization (Midtread)')
+    plot(x, [x, deq_val_midtread], ['Input Ramp Signal', 'Dequantized Midtread Output'], 'Input', 'Output', 'Uniform Quantization (Midtread)')
 
 
 # 2- random uniform signal
@@ -91,7 +92,7 @@ def random_test():
           
           E_x2 = np.mean(input_signal**2)
           E_error2 = np.mean(quantization_error**2)
-          snr_values.append(E_x2 / E_error2)
+          snr_values.append(10*np.log10(E_x2 / E_error2))
           theoretical_snr.append((3 * (2 ** n_bits) ** 2 * E_x2) /x_random_max**2)
      # Plot SNR vs n_bits
      plot_SNR(n_bits_range, [10 * np.log10(snr_values)],[10 * np.log10(theoretical_snr)],
